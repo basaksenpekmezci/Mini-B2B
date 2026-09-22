@@ -1,0 +1,8 @@
+@model ErrorViewModel
+@{ ViewData["Title"] = "Hata"; }
+
+<h2>Bir hata oluştu.</h2>
+@if (Model.ShowRequestId)
+{
+    <p><strong>Request Id:</strong> @Model.RequestId</p>
+}

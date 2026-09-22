@@ -1,0 +1,64 @@
+@model Product
+
+<div class="row g-3">
+    <div class="col-4">
+        @if (string.IsNullOrEmpty(Model.ResimUrl))
+        {
+            <div class="bg-light border rounded d-flex align-items-center justify-content-center text-muted" style="height:120px;">Görsel Yok</div>
+        }
+        else
+        {
+            <img src="@Model.ResimUrl" alt="@Model.UrunAdi" class="img-fluid rounded border" />
+        }
+    </div>
+    <div class="col-8">
+        <h5 class="mb-1">@Model.UrunAdi</h5>
+        <div class="text-muted mb-2">@Model.UrunKodu</div>
+        <span class="badge @MiniB2B.Web.Services.ProductGridRenderer.StockBadgeClass(Model.StokDurumu)">@Model.StokDurumu</span>
+        <div class="h5 mt-2">@Model.Fiyat.ToString("N2") TL</div>
+    </div>
+</div>
+
+<hr />
+
+<dl class="row mb-0">
+    @if (!string.IsNullOrEmpty(Model.Aciklama))
+    {
+        <dt class="col-4">Açıklama</dt>
+        <dd class="col-8">@Model.Aciklama</dd>
+    }
+    @if (!string.IsNullOrEmpty(Model.Marka))
+    {
+        <dt class="col-4">Marka</dt>
+        <dd class="col-8">@Model.Marka</dd>
+    }
+    @if (!string.IsNullOrEmpty(Model.UreticiKodu))
+    {
+        <dt class="col-4">Üretici Kodu</dt>
+        <dd class="col-8">@Model.UreticiKodu</dd>
+    }
+    @if (!string.IsNullOrEmpty(Model.OzelKod1))
+    {
+        <dt class="col-4">Özel Kod 1</dt>
+        <dd class="col-8">@Model.OzelKod1</dd>
+    }
+    @if (!string.IsNullOrEmpty(Model.OzelKod2))
+    {
+        <dt class="col-4">Özel Kod 2</dt>
+        <dd class="col-8">@Model.OzelKod2</dd>
+    }
+    @if (!string.IsNullOrEmpty(Model.CategoryAdi))
+    {
+        <dt class="col-4">Kategori</dt>
+        <dd class="col-8">@Model.CategoryAdi</dd>
+    }
+    <dt class="col-4">Stok Miktarı</dt>
+    <dd class="col-8">@Model.StokMiktari</dd>
+</dl>
+
+<form asp-controller="Cart" asp-action="Add" method="post" class="d-flex gap-2 mt-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="productId" value="@Model.Id" />
+    <input type="number" name="adet" value="1" min="1" class="form-control" style="width:90px" disabled="@(Model.StokMiktari <= 0)" />
+    <button type="submit" class="btn btn-primary" disabled="@(Model.StokMiktari <= 0)">Sepete Ekle</button>
+</form>

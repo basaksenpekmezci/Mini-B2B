@@ -1,0 +1,40 @@
+@model Order
+@{ ViewData["Title"] = $"Sipariş {Model.SiparisNo}"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Sipariş @Model.SiparisNo</h2>
+    <span class="badge fs-6 @OrderStatusBadge.CssClass(Model.Durum)">@OrderStatusBadge.Label(Model.Durum)</span>
+</div>
+
+<dl class="row">
+    <dt class="col-2">Tarih</dt>
+    <dd class="col-10">@Model.SiparisTarihi.ToString("dd.MM.yyyy HH:mm")</dd>
+    <dt class="col-2">Toplam Tutar</dt>
+    <dd class="col-10">@Model.ToplamTutar.ToString("N2") TL</dd>
+</dl>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Ürün Kodu</th>
+            <th>Ürün Adı</th>
+            <th class="text-end">Adet</th>
+            <th class="text-end">Birim Fiyat</th>
+            <th class="text-end">Toplam Fiyat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Kalemler)
+        {
+            <tr>
+                <td>@item.UrunKodu</td>
+                <td>@item.UrunAdi</td>
+                <td class="text-end">@item.Adet</td>
+                <td class="text-end">@item.BirimFiyat.ToString("N2") TL</td>
+                <td class="text-end">@item.ToplamFiyat.ToString("N2") TL</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-outline-secondary">← Siparişlerime Dön</a>

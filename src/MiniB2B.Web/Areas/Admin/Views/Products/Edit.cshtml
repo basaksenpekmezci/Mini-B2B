@@ -1,0 +1,12 @@
+@model Product
+@{ ViewData["Title"] = "Ürün Düzenle"; }
+
+<h2 class="mb-4">Ürün Düzenle</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_ProductFormFields" />
+    <button type="submit" class="btn btn-primary">Güncelle</button>
+    <a asp-action="Index" class="btn btn-link">Vazgeç</a>
+</form>

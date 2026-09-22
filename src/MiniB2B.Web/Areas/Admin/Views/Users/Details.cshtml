@@ -1,0 +1,17 @@
+@model User
+@{ ViewData["Title"] = "Kullanıcı Detayı"; }
+
+<h2 class="mb-4">Kullanıcı Detayı</h2>
+<dl class="row">
+    <dt class="col-sm-3">Ad Soyad</dt>
+    <dd class="col-sm-9">@Model.Ad @Model.Soyad</dd>
+    <dt class="col-sm-3">Kullanıcı Adı</dt>
+    <dd class="col-sm-9">@Model.Username</dd>
+    <dt class="col-sm-3">E-posta</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+    <dt class="col-sm-3">Telefon</dt>
+    <dd class="col-sm-9">@Model.Telefon</dd>
+    <dt class="col-sm-3">Kayıt Tarihi</dt>
+    <dd class="col-sm-9">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+</dl>
+<a asp-action="Index" class="btn btn-link">Listeye Dön</a>
