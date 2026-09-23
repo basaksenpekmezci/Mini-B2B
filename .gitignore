@@ -3,4 +3,6 @@ obj/
 .vs/
 *.user
 appsettings.Local.json
-.claude/scheduled_tasks.lock
+
+# Claude Code oturum/araç dosyaları — projeye ait değil
+.claude/
