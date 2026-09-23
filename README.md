@@ -35,11 +35,16 @@ ProductGridColumns, Cart, CartItems, Orders, OrderItems) ve `SiparisNoSequence` 
 yeterlidir** — üçüncü bir script'e gerek yoktur.
 
 **Zaten bu projeyle daha önce (03 numaralı script eklenmeden önce) kurulmuş bir veritabanınız varsa**,
-sadece eksik parçayı eklemek için ek olarak şunu çalıştırın (idempotent'tir, veriyi silmez):
+sadece eksik parçayı eklemek için ek olarak şunu çalıştırın:
 
 ```
 sqlcmd -S (localdb)\MSSQLLocalDB -i db/03_add_siparisno_sequence.sql
 ```
+
+Script gerçek anlamda idempotent'tir: `SiparisNoSequence` zaten varsa **hiçbir şey yapmaz** (DROP edip
+sıfırlamaz — aksi halde sipariş oluşmuş bir veritabanında tekrar çalıştırıldığında sequence 1'den
+başlar ve `SiparisNo` UNIQUE kısıtını ihlal ederdi). İlk çalıştırmada, Orders tablosunda zaten
+`SP` + 6 haneli formatta kayıt varsa sequence en büyük mevcut numaradan sonra başlar.
 
 ### 3. Bağlantı Ayarı
 `src/MiniB2B.Web/appsettings.json` içindeki `ConnectionStrings:DefaultConnection`, Windows Authentication kullanan LocalDB için güvenli (şifre içermeyen) bir varsayılan değer içerir:
