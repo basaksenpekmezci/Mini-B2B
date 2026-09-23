@@ -3,6 +3,11 @@
     Hedef: SQL Server (2019+ / LocalDB / Express)
     Çalıştırma: sqlcmd -S <server> -i 01_schema.sql
                 veya SSMS'te açıp Execute (F5)
+
+    Script baştan sona yeniden çalıştırılabilir (mevcut tabloları silip yeniden kurar). Bunun için
+    tüm DROP'lar en başta, FOREIGN KEY bağımlılıklarına göre doğru sırada (önce referans veren alt
+    tablolar, sonra referans alınan üst tablolar) toplanmıştır — aksi halde örn. Orders/Cart tabloları
+    dururken Users'ı DROP etmeye çalışmak FK ihlali hatası verir.
 */
 
 IF DB_ID('MiniB2B') IS NULL
@@ -15,10 +20,23 @@ USE MiniB2B;
 GO
 
 -- =========================================================
+-- Mevcut tabloları/nesneleri sil (varsa) — alt tablolardan üst tablolara doğru
+-- =========================================================
+IF OBJECT_ID('dbo.OrderItems', 'U') IS NOT NULL DROP TABLE dbo.OrderItems;
+IF OBJECT_ID('dbo.CartItems', 'U') IS NOT NULL DROP TABLE dbo.CartItems;
+IF OBJECT_ID('dbo.Orders', 'U') IS NOT NULL DROP TABLE dbo.Orders;
+IF OBJECT_ID('dbo.Cart', 'U') IS NOT NULL DROP TABLE dbo.Cart;
+IF OBJECT_ID('dbo.Products', 'U') IS NOT NULL DROP TABLE dbo.Products;
+IF OBJECT_ID('dbo.ProductGridColumns', 'U') IS NOT NULL DROP TABLE dbo.ProductGridColumns;
+IF OBJECT_ID('dbo.Banners', 'U') IS NOT NULL DROP TABLE dbo.Banners;
+IF OBJECT_ID('dbo.Categories', 'U') IS NOT NULL DROP TABLE dbo.Categories;
+IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL DROP TABLE dbo.Users;
+IF OBJECT_ID('dbo.SiparisNoSequence', 'SO') IS NOT NULL DROP SEQUENCE dbo.SiparisNoSequence;
+GO
+
+-- =========================================================
 -- Users
 -- =========================================================
-IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL DROP TABLE dbo.Users;
-GO
 CREATE TABLE dbo.Users
 (
     Id              INT             IDENTITY(1,1)   NOT NULL,
@@ -41,8 +59,6 @@ GO
 -- =========================================================
 -- Categories
 -- =========================================================
-IF OBJECT_ID('dbo.Categories', 'U') IS NOT NULL DROP TABLE dbo.Categories;
-GO
 CREATE TABLE dbo.Categories
 (
     Id      INT             IDENTITY(1,1)   NOT NULL,
@@ -56,8 +72,6 @@ GO
 -- =========================================================
 -- Products
 -- =========================================================
-IF OBJECT_ID('dbo.Products', 'U') IS NOT NULL DROP TABLE dbo.Products;
-GO
 CREATE TABLE dbo.Products
 (
     Id                      INT             IDENTITY(1,1)   NOT NULL,
@@ -91,8 +105,6 @@ GO
 -- =========================================================
 -- ProductGridColumns  (dinamik grid konfigürasyonu)
 -- =========================================================
-IF OBJECT_ID('dbo.ProductGridColumns', 'U') IS NOT NULL DROP TABLE dbo.ProductGridColumns;
-GO
 CREATE TABLE dbo.ProductGridColumns
 (
     Id              INT             IDENTITY(1,1)   NOT NULL,
@@ -117,8 +129,6 @@ GO
 -- =========================================================
 -- Banners  (ana sayfa slider'ı için admin panelinden yönetilen içerik)
 -- =========================================================
-IF OBJECT_ID('dbo.Banners', 'U') IS NOT NULL DROP TABLE dbo.Banners;
-GO
 CREATE TABLE dbo.Banners
 (
     Id          INT             IDENTITY(1,1)   NOT NULL,
@@ -135,9 +145,6 @@ GO
 -- =========================================================
 -- Cart / CartItems
 -- =========================================================
-IF OBJECT_ID('dbo.CartItems', 'U') IS NOT NULL DROP TABLE dbo.CartItems;
-IF OBJECT_ID('dbo.Cart', 'U') IS NOT NULL DROP TABLE dbo.Cart;
-GO
 CREATE TABLE dbo.Cart
 (
     Id          INT             IDENTITY(1,1)   NOT NULL,
@@ -168,14 +175,9 @@ GO
 -- =========================================================
 -- Orders / OrderItems
 -- =========================================================
-IF OBJECT_ID('dbo.OrderItems', 'U') IS NOT NULL DROP TABLE dbo.OrderItems;
-IF OBJECT_ID('dbo.Orders', 'U') IS NOT NULL DROP TABLE dbo.Orders;
-GO
 
 -- SiparisNo üretimi için: zaman damgası yerine, eşzamanlı sipariş oluşturmalarda bile çakışmayan,
 -- SQL Server tarafından atomik şekilde artırılan bir SEQUENCE kullanılıyor (bkz. OrderService).
-IF OBJECT_ID('dbo.SiparisNoSequence', 'SO') IS NOT NULL DROP SEQUENCE dbo.SiparisNoSequence;
-GO
 CREATE SEQUENCE dbo.SiparisNoSequence
     AS INT
     START WITH 1
