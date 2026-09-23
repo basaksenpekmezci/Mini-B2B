@@ -109,12 +109,14 @@ src/MiniB2B.Web/
     PagedResult.cs        # sunucu taraflı sayfalama sonucu (Items + TotalCount)
     Repositories/         # Dapper ile SQL erişimi (arayüz + implementasyon)
   Services/             # PasswordHasher, AuthService, ProductService, CartService, OrderService,
+                        # ProductGridColumnService, BannerService, ProductImageUploadService,
                         # ProductGridRenderer (dinamik grid reflection), OrderStatusBadge
-  Models/               # MVC ViewModel'leri (Login/Register)
+  Models/               # MVC ViewModel'leri (Login/Register), ErrorViewModel
   Controllers/          # Account, Home (mağaza/grid), Cart, Orders (Siparişlerim)
-  Areas/Admin/          # Yönetim paneli (Products, Users, Orders controller + view'lar)
+  Areas/Admin/          # Yönetim paneli (Products, Users, Orders, GridColumns, Banners
+                        # controller + view'lar)
   Views/                # Mağaza tarafı view'ları
-  wwwroot/               # statik dosyalar (css, js)
+  wwwroot/               # statik dosyalar (css, js), uploads/products (yüklenen ürün görselleri, git'e girmez)
 ```
 
 ## Özellikler
@@ -208,7 +210,7 @@ transaction'lar arası kilitlenmeden atomik artış garantisi verdiği için hem
 performanslı bir çözüm.
 
 **Dinamik grid'in çalışma mantığı:** `ProductGridColumns` tablosu her kolon için `ColumnKey` (Product
-sınıfındaki property adı), `OrderIndex`, `RenderType` (Text/Image/Currency/StockBadge/QtyInput),
+sınıfındaki property adı), `OrderIndex`, `RenderType` (Text/Image/Number/Currency/StockBadge/QtyInput),
 hizalama/genişlik ve cihaz görünürlüğü (`ShowOnDesktop/Tablet/Mobile`) tutar. `ProductGridRenderer.GetValue`,
 verilen `ColumnKey` için `typeof(Product).GetProperty(...)` ile reflection üzerinden değeri okur (sonuçlar
 `ConcurrentDictionary` ile cache'lenir, ürün sayısı arttıkça reflection maliyeti tekrarlanmaz). View,
