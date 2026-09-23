@@ -259,3 +259,9 @@ ayrıştırması yüzünden azure-sql-edge'in ürettiği self-signed sertifikay�
 serial number`) — bu `-C`/`-N o` ile çözülmez. Alternatif: script'leri Azure Data Studio/DBeaver gibi
 başka bir istemciyle ya da `Microsoft.Data.SqlClient` (.NET'in kendi TLS yığınını kullanır, bu
 sertifikayı sorunsuz kabul eder) ile çalıştırın.
+
+**Docker veri kalıcılığı:** `docker run` ile container'ı adlandırılmış bir volume olmadan
+oluşturduysanız, veritabanı dosyaları container'ın kendi yazılabilir katmanında durur. `docker stop`/
+`docker start` arasında veri korunur, ama container `docker rm` ile silinip yeniden oluşturulursa
+kaybolur. Kalıcı tutmak isterseniz `docker run -v minib2b-data:/var/opt/mssql ...` gibi adlandırılmış
+bir volume ekleyin.
