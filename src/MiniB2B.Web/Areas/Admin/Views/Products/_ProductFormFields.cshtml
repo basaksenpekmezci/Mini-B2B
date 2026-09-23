@@ -44,9 +44,20 @@
     </div>
 </div>
 
-<div class="mb-3">
-    <label asp-for="ResimUrl" class="form-label">Resim URL</label>
-    <input asp-for="ResimUrl" class="form-control" placeholder="/images/products/... veya harici URL" />
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="ResimUrl" class="form-label">Resim URL</label>
+        <input asp-for="ResimUrl" class="form-control" placeholder="/images/products/... veya harici URL" />
+        @if (!string.IsNullOrEmpty(Model.ResimUrl))
+        {
+            <div class="form-text">Mevcut: <img src="@Model.ResimUrl" alt="" style="height:40px;vertical-align:middle;" class="ms-1 border rounded" /></div>
+        }
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="imageFile" class="form-label">veya Dosya Yükle</label>
+        <input type="file" id="imageFile" name="imageFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+        <div class="form-text">jpg, png veya webp — en fazla 2 MB. Yüklenirse yukarıdaki URL alanının yerini alır.</div>
+    </div>
 </div>
 
 <div class="row">

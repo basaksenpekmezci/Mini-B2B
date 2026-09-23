@@ -4,5 +4,8 @@ obj/
 *.user
 appsettings.Local.json
 
+# Admin panelinden yüklenen ürün görselleri — kullanıcı içeriği, kaynak koda ait değil
+src/MiniB2B.Web/wwwroot/uploads/
+
 # Claude Code oturum/araç dosyaları — projeye ait değil
 .claude/

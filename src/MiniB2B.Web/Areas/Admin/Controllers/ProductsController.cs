@@ -14,11 +14,13 @@ public class ProductsController : Controller
 
     private readonly IProductService _productService;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IProductImageUploadService _imageUploadService;
 
-    public ProductsController(IProductService productService, ICategoryRepository categoryRepository)
+    public ProductsController(IProductService productService, ICategoryRepository categoryRepository, IProductImageUploadService imageUploadService)
     {
         _productService = productService;
         _categoryRepository = categoryRepository;
+        _imageUploadService = imageUploadService;
     }
 
     // GET /Admin/Products?search=...&categoryId=...&marka=...&durum=aktif|pasif|tumu&page=...
@@ -68,12 +70,25 @@ public class ProductsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Product product)
+    public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
         {
             await PopulateCategoriesAsync();
             return View(product);
+        }
+
+        if (imageFile is not null && imageFile.Length > 0)
+        {
+            var upload = await _imageUploadService.UploadAsync(imageFile);
+            if (!upload.Success)
+            {
+                ModelState.AddModelError(string.Empty, upload.ErrorMessage ?? "Görsel yüklenemedi.");
+                await PopulateCategoriesAsync();
+                return View(product);
+            }
+
+            product.ResimUrl = upload.RelativeUrl;
         }
 
         var result = await _productService.CreateAsync(product);
@@ -99,7 +114,7 @@ public class ProductsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Product product)
+    public async Task<IActionResult> Edit(int id, Product product, IFormFile? imageFile)
     {
         if (id != product.Id) return BadRequest();
 
@@ -107,6 +122,19 @@ public class ProductsController : Controller
         {
             await PopulateCategoriesAsync();
             return View(product);
+        }
+
+        if (imageFile is not null && imageFile.Length > 0)
+        {
+            var upload = await _imageUploadService.UploadAsync(imageFile);
+            if (!upload.Success)
+            {
+                ModelState.AddModelError(string.Empty, upload.ErrorMessage ?? "Görsel yüklenemedi.");
+                await PopulateCategoriesAsync();
+                return View(product);
+            }
+
+            product.ResimUrl = upload.RelativeUrl;
         }
 
         var result = await _productService.UpdateAsync(product);

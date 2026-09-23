@@ -123,7 +123,9 @@ src/MiniB2B.Web/
 - **Ürün yönetimi:** listeleme + arama (ürün adı/kodu/marka/üretici kodu/özel kodlar/açıklama — tüm
   metinsel alanlarda, SQL tarafında tek sorgu), kategori ve marka filtresi, sunucu taraflı sayfalama,
   ürün ekleme/düzenleme (backend validasyonu), ürünü pasife alma/tekrar aktif etme (Aktif/Pasif/Tümü
-  filtresi ile).
+  filtresi ile). Ürün görseli, URL yazmak yerine doğrudan dosya olarak da yüklenebilir (jpg/png/webp,
+  en fazla 2 MB; uzantıya ek olarak dosyanın gerçek baytları da doğrulanır, `wwwroot/uploads/products`
+  altına benzersiz isimle kaydedilir).
 - **Kullanıcı yönetimi:** listeleme, detay görüntüleme, düzenleme; şifreler PBKDF2 ile hash'lenip
   saklanır (asla açık metin değil).
 - **Sipariş yönetimi:** sipariş listesi (no, kullanıcı, tarih, tutar, durum) + detay (kalemler, sipariş
