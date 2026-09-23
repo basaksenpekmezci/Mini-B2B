@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MiniB2B.Web.Data.Repositories;
 using MiniB2B.Web.Models;
@@ -14,17 +15,20 @@ public class HomeController : Controller
     private readonly IProductGridColumnRepository _gridColumnRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IBannerService _bannerService;
+    private readonly ILogger<HomeController> _logger;
 
     public HomeController(
         IProductService productService,
         IProductGridColumnRepository gridColumnRepository,
         ICategoryRepository categoryRepository,
-        IBannerService bannerService)
+        IBannerService bannerService,
+        ILogger<HomeController> logger)
     {
         _productService = productService;
         _gridColumnRepository = gridColumnRepository;
         _categoryRepository = categoryRepository;
         _bannerService = bannerService;
+        _logger = logger;
     }
 
     // GET /  veya  /Home/Index?search=...&categoryId=...&marka=...&page=...
@@ -58,9 +62,24 @@ public class HomeController : Controller
         return PartialView("_ProductDetails", product);
     }
 
+    // Hem UseExceptionHandler("/Home/Error") (beklenmeyen exception'lar) hem de
+    // UseStatusCodePagesWithReExecute (404 gibi durum kodları) buraya düşer. Beklenmeyen bir
+    // exception varsa (IExceptionHandlerPathFeature ile erişilir) burada açıkça loglanır; kullanıcıya
+    // ise hiçbir zaman exception mesajı/stack trace gösterilmez, sadece durum koduna göre genel bir
+    // mesaj (bkz. ErrorViewModel.Message) ve destek için bir RequestId gösterilir.
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    public IActionResult Error(int? statusCode = null)
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+
+        if (exceptionFeature?.Error is not null)
+        {
+            _logger.LogError(exceptionFeature.Error,
+                "Beklenmeyen hata yakalandı. Path: {Path}, RequestId: {RequestId}",
+                exceptionFeature.Path, requestId);
+        }
+
+        return View(new ErrorViewModel { RequestId = requestId, StatusCode = statusCode });
     }
 }

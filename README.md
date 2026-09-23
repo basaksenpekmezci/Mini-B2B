@@ -221,6 +221,16 @@ yeni kolon eklerken `ColumnKey`'in Product üzerinde gerçek bir property'ye kar
 hariç) backend'de (`ProductGridColumnService`, `ProductGridRenderer.ProductHasProperty` ile) doğrulanır,
 uymayan bir değer anlaşılır bir hata mesajıyla reddedilir.
 
+**Global hata yönetimi:** Development ortamında (`dotnet run`) beklenmeyen hatalar `UseDeveloperExceptionPage`
+ile ayrıntılı olarak gösterilir; diğer ortamlarda ise `UseExceptionHandler("/Home/Error")` devreye girer —
+`HomeController.Error`, exception'ı (`IExceptionHandlerPathFeature` ile) `ILogger` üzerinden tam stack trace
+ve `RequestId` ile loglar, kullanıcıya ise hiçbir teknik detay göstermeden sadece genel bir mesaj + aynı
+`RequestId`'yi (destek/loglarla eşleştirmek için) gösterir. `UseStatusCodePagesWithReExecute` ile 404 gibi
+exception atmayan durum kodları da aynı sayfa üzerinden, duruma özel bir mesajla (`ErrorViewModel.Message`)
+karşılanır. Bu davranışı DB container'ını geçici olarak durdurup gerçek bir bağlantı hatası tetikleyerek
+doğruladım: Production'da kullanıcı sadece "Beklenmeyen bir hata oluştu..." görürken, sunucu konsolunda
+tam `SqlException` + `RequestId` loglandı.
+
 ## Örnek Kullanım Senaryosu
 
 Uygulamayı test etmek için önerilen uçtan uca akış:

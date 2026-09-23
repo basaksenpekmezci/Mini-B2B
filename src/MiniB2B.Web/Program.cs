@@ -56,11 +56,21 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (!app.Environment.IsDevelopment())
+// Global hata yönetimi: Development'ta geliştiriciye ayrıntılı hata sayfası, diğer ortamlarda
+// beklenmeyen exception'lar kullanıcıya teknik detay göstermeyen /Home/Error'a yönlendirilir
+// (exception orada loglanır, bkz. HomeController.Error). 404 gibi durum kodları da (exception
+// atılmadan dönen) aynı sayfa üzerinden, duruma özel bir mesajla gösterilir.
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

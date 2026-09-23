@@ -1,8 +1,12 @@
 @model ErrorViewModel
 @{ ViewData["Title"] = "Hata"; }
 
-<h2>Bir hata oluştu.</h2>
-@if (Model.ShowRequestId)
-{
-    <p><strong>Request Id:</strong> @Model.RequestId</p>
-}
+<div class="text-center py-5">
+    <h2 class="mb-3">@(Model.StatusCode is not null ? $"Hata {Model.StatusCode}" : "Bir hata oluştu")</h2>
+    <p class="lead">@Model.Message</p>
+    @if (Model.ShowRequestId)
+    {
+        <p class="text-muted small">Talep No: <code>@Model.RequestId</code></p>
+    }
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Ana Sayfaya Dön</a>
+</div>
