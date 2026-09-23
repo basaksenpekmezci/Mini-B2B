@@ -20,9 +20,13 @@
             @for (var i = 0; i < banners.Count; i++)
             {
                 var banner = banners[i];
+                // banner.ResimUrl/Baslik admin panelinden geliyor olsa da, HTML'e gömülmeden önce
+                // mutlaka encode ediliyor — aksi halde bir " karakteri src attribute'undan çıkıp
+                // markup/script enjekte edebilirdi (Html.Raw kullanıldığı için Razor'ın otomatik
+                // encode'u burada devreye girmez, elle yapmak gerekiyor).
                 var slideContent = string.IsNullOrEmpty(banner.ResimUrl)
                     ? $"<div class=\"{bannerColors[i % bannerColors.Length]} text-white text-center py-5\"><h3>{System.Net.WebUtility.HtmlEncode(banner.Baslik)}</h3></div>"
-                    : $"<img src=\"{banner.ResimUrl}\" alt=\"{System.Net.WebUtility.HtmlEncode(banner.Baslik)}\" class=\"d-block w-100\" style=\"max-height:320px;object-fit:cover;\" />";
+                    : $"<img src=\"{System.Net.WebUtility.HtmlEncode(banner.ResimUrl)}\" alt=\"{System.Net.WebUtility.HtmlEncode(banner.Baslik)}\" class=\"d-block w-100\" style=\"max-height:320px;object-fit:cover;\" />";
 
                 <div class="carousel-item @(i == 0 ? "active" : "")">
                     @if (!string.IsNullOrEmpty(banner.Link))

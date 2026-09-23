@@ -32,7 +32,7 @@
                 <td class="text-end">
                     <a asp-action="Edit" asp-route-id="@b.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
                     <form asp-action="Delete" asp-route-id="@b.Id" method="post" class="d-inline"
-                          onsubmit="return confirm('&quot;@b.Baslik&quot; bannerını silmek istediğinize emin misiniz?');">
+                          onsubmit="return confirm('Bu bannerı silmek istediğinize emin misiniz?');">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
                     </form>
