@@ -11,9 +11,9 @@ public interface IProductRepository
     Task UpdateAsync(Product product);
 
     /// <summary>
-    /// Sipariş oluşturma sırasında birden fazla ürünün stoğunu tek transaction
-    /// içinde kontrol edip düşmek için kullanılır (bkz. OrderService).
+    /// Sipariş oluşturma transaction'ı içinde stoğu düşmek için kullanılır (bkz. OrderService).
+    /// Stok kontrolü artık ayrı bir sorguyla değil, ICartRepository.GetItemsForOrderAsync'in
+    /// UPDLOCK'lu okumasından gelen değerle yapılıyor.
     /// </summary>
-    Task<int> GetStokMiktariForUpdateAsync(System.Data.IDbConnection connection, System.Data.IDbTransaction transaction, int productId);
     Task DecrementStokAsync(System.Data.IDbConnection connection, System.Data.IDbTransaction transaction, int productId, int adet);
 }

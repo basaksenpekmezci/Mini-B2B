@@ -26,19 +26,15 @@ public class OrderService : IOrderService
     }
 
     /// <summary>
-    /// Sepetteki tüm ürünlerin stoğunu tek transaction içinde (UPDLOCK/ROWLOCK ile) kontrol eder,
-    /// yeterliyse siparişi ve kalemlerini (ürün/fiyat snapshot'ı ile) oluşturur, stoğu düşer ve
-    /// sepeti temizler. Herhangi bir üründe stok yetersizse hiçbir değişiklik kalıcı olmaz (rollback).
+    /// Sepet kalemlerini, ilgili ürün satırlarını UPDLOCK/ROWLOCK ile kilitleyerek TEK sorguda ve
+    /// transaction içinde okur (fiyat/stok snapshot'ı bu kilitli okumadan gelir, transaction öncesi
+    /// alınmış bir veriden değil). Pasif ürün varsa ya da herhangi bir üründe stok yetersizse hiçbir
+    /// değişiklik kalıcı olmaz (rollback); yeterliyse siparişi ve kalemlerini oluşturur, stoğu düşer
+    /// ve sepeti temizler.
     /// </summary>
     public async Task<OrderCreateResult> CreateOrderFromCartAsync(int userId)
     {
         var cartId = await _cartRepository.GetOrCreateCartIdAsync(userId);
-        var items = (await _cartRepository.GetItemsAsync(cartId)).ToList();
-
-        if (items.Count == 0)
-        {
-            return new OrderCreateResult { Success = false, ErrorMessage = "Sepetiniz boş." };
-        }
 
         using var connection = _context.CreateConnection();
         connection.Open();
@@ -46,16 +42,34 @@ public class OrderService : IOrderService
 
         try
         {
+            var items = (await _cartRepository.GetItemsForOrderAsync(connection, transaction, cartId)).ToList();
+
+            if (items.Count == 0)
+            {
+                transaction.Rollback();
+                return new OrderCreateResult { Success = false, ErrorMessage = "Sepetiniz boş." };
+            }
+
+            var inactiveItem = items.FirstOrDefault(i => !i.IsActive);
+            if (inactiveItem is not null)
+            {
+                transaction.Rollback();
+                return new OrderCreateResult
+                {
+                    Success = false,
+                    ErrorMessage = $"\"{inactiveItem.UrunAdi}\" artık satışta değil. Lütfen sepetinizden çıkarıp tekrar deneyin."
+                };
+            }
+
             foreach (var item in items)
             {
-                var currentStok = await _productRepository.GetStokMiktariForUpdateAsync(connection, transaction, item.ProductId);
-                if (currentStok < item.Adet)
+                if (item.MevcutStok < item.Adet)
                 {
                     transaction.Rollback();
                     return new OrderCreateResult
                     {
                         Success = false,
-                        ErrorMessage = $"\"{item.UrunAdi}\" için yeterli stok bulunmamaktadır. Mevcut stok: {currentStok}."
+                        ErrorMessage = $"\"{item.UrunAdi}\" için yeterli stok bulunmamaktadır. Mevcut stok: {item.MevcutStok}."
                     };
                 }
             }

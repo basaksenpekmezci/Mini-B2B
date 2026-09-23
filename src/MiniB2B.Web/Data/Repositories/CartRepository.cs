@@ -48,6 +48,20 @@ public class CartRepository : ICartRepository
         return await connection.QueryAsync<CartItem>(sql, new { CartId = cartId });
     }
 
+    public async Task<IEnumerable<CartItem>> GetItemsForOrderAsync(IDbConnection connection, IDbTransaction transaction, int cartId)
+    {
+        const string sql = @"
+            SELECT ci.Id, ci.CartId, ci.ProductId, ci.Adet,
+                   p.UrunKodu, p.UrunAdi, p.ResimUrl,
+                   p.Fiyat AS BirimFiyat, p.StokMiktari AS MevcutStok, p.IsActive
+            FROM dbo.CartItems ci
+            JOIN dbo.Products p WITH (UPDLOCK, ROWLOCK) ON p.Id = ci.ProductId
+            WHERE ci.CartId = @CartId
+            ORDER BY ci.Id;";
+
+        return await connection.QueryAsync<CartItem>(new CommandDefinition(sql, new { CartId = cartId }, transaction));
+    }
+
     public async Task UpsertItemAsync(int cartId, int productId, int adet)
     {
         const string sql = @"

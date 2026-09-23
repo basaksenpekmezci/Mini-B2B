@@ -23,6 +23,7 @@ public class CartItem
     public string? ResimUrl { get; set; }
     public decimal BirimFiyat { get; set; }
     public int MevcutStok { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public decimal ToplamFiyat => BirimFiyat * Adet;
 }

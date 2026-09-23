@@ -105,18 +105,6 @@ public class ProductRepository : IProductRepository
         await connection.ExecuteAsync(sql, product);
     }
 
-    public async Task<int> GetStokMiktariForUpdateAsync(IDbConnection connection, IDbTransaction transaction, int productId)
-    {
-        // UPDLOCK/ROWLOCK: aynı ürün için eşzamanlı siparişlerde "race condition" ile
-        // stok kontrolünün atlatılmasını (iki siparişin aynı anda "yeterli stok var" görmesini) engeller.
-        const string sql = @"
-            SELECT StokMiktari
-            FROM dbo.Products WITH (UPDLOCK, ROWLOCK)
-            WHERE Id = @ProductId;";
-
-        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new { ProductId = productId }, transaction));
-    }
-
     public async Task DecrementStokAsync(IDbConnection connection, IDbTransaction transaction, int productId, int adet)
     {
         const string sql = @"
