@@ -10,6 +10,8 @@ namespace MiniB2B.Web.Areas.Admin.Controllers;
 [Authorize(Roles = "Admin")]
 public class ProductsController : Controller
 {
+    private const int PageSize = 20;
+
     private readonly IProductService _productService;
     private readonly ICategoryRepository _categoryRepository;
 
@@ -19,12 +21,17 @@ public class ProductsController : Controller
         _categoryRepository = categoryRepository;
     }
 
-    // GET /Admin/Products?search=...
-    public async Task<IActionResult> Index(string? search)
+    // GET /Admin/Products?search=...&categoryId=...&marka=...&page=...
+    public async Task<IActionResult> Index(string? search, int? categoryId, string? marka, int page = 1)
     {
-        var products = await _productService.SearchAsync(search);
+        var result = await _productService.SearchPagedAsync(search, categoryId, marka, isActiveFilter: true, page, PageSize);
+
         ViewData["Search"] = search;
-        return View(products);
+        ViewData["CategoryId"] = categoryId;
+        ViewData["Marka"] = marka;
+        ViewData["Categories"] = await _categoryRepository.GetAllAsync();
+        ViewData["Brands"] = await _productService.GetDistinctBrandsAsync();
+        return View(result);
     }
 
     public async Task<IActionResult> Create()

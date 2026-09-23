@@ -1,8 +1,13 @@
+@using MiniB2B.Web.Data
 @using MiniB2B.Web.Services
-@model IEnumerable<Product>
+@model PagedResult<Product>
 @{
     ViewData["Title"] = "Ürünler";
     var columns = (List<ProductGridColumn>)ViewData["GridColumns"]!;
+    var categories = (IEnumerable<Category>)ViewData["Categories"]!;
+    var brands = (IEnumerable<string>)ViewData["Brands"]!;
+    var currentCategoryId = ViewData["CategoryId"] as int?;
+    var currentMarka = ViewData["Marka"] as string;
 }
 
 <div id="homeSlider" class="carousel slide mb-4" data-bs-ride="carousel">
@@ -36,15 +41,33 @@
     <h2 class="mb-0">Ürünler</h2>
 </div>
 
-<form method="get" class="mb-3 row g-2">
+<form method="get" class="mb-3 row g-2 align-items-center">
     <div class="col-auto">
         <input type="text" name="search" value="@ViewData["Search"]" class="form-control"
-               placeholder="Ürün adı, kodu, marka, üretici kodu, açıklama..." style="min-width:340px" />
+               placeholder="Ürün adı, kodu, marka, üretici kodu, açıklama..." style="min-width:300px" />
     </div>
     <div class="col-auto">
-        <button type="submit" class="btn btn-outline-secondary">Ara</button>
+        <select name="categoryId" class="form-select">
+            <option value="">Tüm Kategoriler</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c.Id" selected="@(currentCategoryId == c.Id)">@c.Ad</option>
+            }
+        </select>
     </div>
-    @if (!string.IsNullOrEmpty(ViewData["Search"] as string))
+    <div class="col-auto">
+        <select name="marka" class="form-select">
+            <option value="">Tüm Markalar</option>
+            @foreach (var b in brands)
+            {
+                <option value="@b" selected="@(currentMarka == b)">@b</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Ara / Filtrele</button>
+    </div>
+    @if (!string.IsNullOrEmpty(ViewData["Search"] as string) || currentCategoryId is not null || !string.IsNullOrEmpty(currentMarka))
     {
         <div class="col-auto">
             <a asp-action="Index" class="btn btn-link">Temizle</a>
@@ -65,7 +88,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var p in Model)
+        @foreach (var p in Model.Items)
         {
             <tr>
                 @foreach (var col in columns)
@@ -115,12 +138,29 @@
                 </td>
             </tr>
         }
-        @if (!Model.Any())
+        @if (!Model.Items.Any())
         {
             <tr><td colspan="@(columns.Count + 1)" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
         }
     </tbody>
 </table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Sayfalama" class="d-flex justify-content-between align-items-center">
+        <span class="text-muted small">Toplam @Model.TotalCount kayıt — Sayfa @Model.Page / @Model.TotalPages</span>
+        <ul class="pagination mb-0">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-search="@ViewData["Search"]" asp-route-categoryId="@currentCategoryId"
+                       asp-route-marka="@currentMarka" asp-route-page="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
 
 <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

@@ -1,3 +1,4 @@
+using MiniB2B.Web.Data;
 using MiniB2B.Web.Data.Repositories;
 using MiniB2B.Web.Domain;
 
@@ -12,7 +13,10 @@ public class ProductService : IProductService
         _productRepository = productRepository;
     }
 
-    public Task<IEnumerable<Product>> SearchAsync(string? term) => _productRepository.SearchAsync(term);
+    public Task<PagedResult<Product>> SearchPagedAsync(string? term, int? categoryId, string? marka, bool? isActiveFilter, int page, int pageSize) =>
+        _productRepository.SearchPagedAsync(term, categoryId, marka, isActiveFilter, page, pageSize);
+
+    public Task<IEnumerable<string>> GetDistinctBrandsAsync() => _productRepository.GetDistinctBrandsAsync();
 
     public Task<Product?> GetByIdAsync(int id) => _productRepository.GetByIdAsync(id);
 
