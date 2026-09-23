@@ -1,0 +1,12 @@
+@model ProductGridColumn
+@{ ViewData["Title"] = "Grid Kolonu Düzenle"; }
+
+<h2 class="mb-4">Grid Kolonu Düzenle</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_GridColumnFormFields" />
+    <button type="submit" class="btn btn-primary">Güncelle</button>
+    <a asp-action="Index" class="btn btn-link">Vazgeç</a>
+</form>

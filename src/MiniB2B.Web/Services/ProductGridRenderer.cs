@@ -28,6 +28,20 @@ public static class ProductGridRenderer
     }
 
     /// <summary>
+    /// Verilen ColumnKey'in Product sınıfında gerçek bir public property'ye karşılık gelip
+    /// gelmediğini söyler. Grid Kolonları admin ekranında yeni kolon eklerken/düzenlerken
+    /// (QtyInput render tipi hariç) ColumnKey'i doğrulamak için kullanılır.
+    /// </summary>
+    public static bool ProductHasProperty(string columnKey)
+    {
+        var prop = PropertyCache.GetOrAdd(
+            columnKey,
+            static key => typeof(Product).GetProperty(key, BindingFlags.Public | BindingFlags.Instance));
+
+        return prop is not null;
+    }
+
+    /// <summary>
     /// Kolonun ShowOnDesktop/Tablet/Mobile bayraklarına göre Bootstrap responsive görünürlük sınıfı üretir.
     /// </summary>
     public static string ResponsiveClass(ProductGridColumn column)

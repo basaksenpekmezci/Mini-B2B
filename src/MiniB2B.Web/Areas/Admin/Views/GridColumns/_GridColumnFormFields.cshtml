@@ -1,0 +1,64 @@
+@model ProductGridColumn
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="ColumnKey" class="form-label">Kolon Anahtarı (ColumnKey)</label>
+        <input asp-for="ColumnKey" class="form-control" required
+               placeholder="örn. UrunAdi, Fiyat, StokDurumu veya AdetGiris (QtyInput için)" />
+        <div class="form-text">
+            "QtyInput" hariç, Product sınıfında gerçekten var olan bir property adıyla birebir eşleşmelidir.
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="DisplayName" class="form-label">Görünen Ad</label>
+        <input asp-for="DisplayName" class="form-control" required />
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="OrderIndex" class="form-label">Sıra</label>
+        <input asp-for="OrderIndex" type="number" class="form-control" required />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="RenderType" class="form-label">Render Tipi</label>
+        <select asp-for="RenderType" class="form-select">
+            @foreach (var rt in (string[])ViewBag.RenderTypes)
+            {
+                <option value="@rt" selected="@(Model.RenderType == rt)">@rt</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Alignment" class="form-label">Hizalama</label>
+        <select asp-for="Alignment" class="form-select">
+            @foreach (var a in (string[])ViewBag.Alignments)
+            {
+                <option value="@a" selected="@(Model.Alignment == a)">@a</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Width" class="form-label">Genişlik</label>
+        <input asp-for="Width" class="form-control" placeholder="örn. 80px, 20%" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-3 form-check">
+        <input asp-for="IsVisible" class="form-check-input" />
+        <label asp-for="IsVisible" class="form-check-label">Görünür</label>
+    </div>
+    <div class="col-md-3 mb-3 form-check">
+        <input asp-for="ShowOnDesktop" class="form-check-input" />
+        <label asp-for="ShowOnDesktop" class="form-check-label">Masaüstünde Göster</label>
+    </div>
+    <div class="col-md-3 mb-3 form-check">
+        <input asp-for="ShowOnTablet" class="form-check-input" />
+        <label asp-for="ShowOnTablet" class="form-check-label">Tablette Göster</label>
+    </div>
+    <div class="col-md-3 mb-3 form-check">
+        <input asp-for="ShowOnMobile" class="form-check-input" />
+        <label asp-for="ShowOnMobile" class="form-check-label">Telefonda Göster</label>
+    </div>
+</div>

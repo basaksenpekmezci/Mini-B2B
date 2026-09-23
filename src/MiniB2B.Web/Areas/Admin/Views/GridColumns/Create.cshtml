@@ -1,0 +1,11 @@
+@model ProductGridColumn
+@{ ViewData["Title"] = "Yeni Grid Kolonu"; }
+
+<h2 class="mb-4">Yeni Grid Kolonu</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="Create" method="post">
+    <partial name="_GridColumnFormFields" />
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a asp-action="Index" class="btn btn-link">Vazgeç</a>
+</form>

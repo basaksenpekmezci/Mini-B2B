@@ -124,6 +124,9 @@ src/MiniB2B.Web/
 - **Sipariş yönetimi:** sipariş listesi (no, kullanıcı, tarih, tutar, durum) + detay (kalemler, sipariş
   anındaki ürün/fiyat bilgisi); durum sadece "Beklemede" iken Onaylandı/Reddedildi yapılabilir, zaten
   sonuçlanmış siparişte anlaşılır hata döner; Reddedildi seçilirse stok otomatik iade edilir.
+- **Grid Kolonları:** mağaza ürün grid'inin kolonlarını (görünen ad, sıra, render tipi, hizalama,
+  genişlik, masaüstü/tablet/telefon görünürlüğü) SQL yazmadan ekleyip düzenleyebileceğiniz bir ekran
+  (`/Admin/GridColumns`) — bkz. [Dinamik grid'in çalışma mantığı](#mimari-ve-teknik-tercihler).
 
 ### Kullanıcı Arayüzü
 - Ana sayfada kampanya/slider alanı ve ürün grid'i.
@@ -202,7 +205,11 @@ verilen `ColumnKey` için `typeof(Product).GetProperty(...)` ile reflection üze
 her kolon için `RenderType`'a göre farklı bir render stratejisi seçer (örn. `StockBadge` → renkli rozet,
 `QtyInput` → adet girişi + sepete ekle formu — bu son ikisi Product üzerinde gerçek bir property değil,
 özel render tipleri). Sonuç: yeni bir kolon eklemek veya sırasını/görünürlüğünü değiştirmek için kod
-değişikliği gerekmez, sadece `ProductGridColumns` tablosunda satır eklenir/güncellenir.
+değişikliği gerekmez, sadece `ProductGridColumns` tablosunda satır eklenir/güncellenir — bunu SQL
+yazmadan yapabilmek için admin panelinde bir **Grid Kolonları** ekranı (`/Admin/GridColumns`) var;
+yeni kolon eklerken `ColumnKey`'in Product üzerinde gerçek bir property'ye karşılık geldiği (`QtyInput`
+hariç) backend'de (`ProductGridColumnService`, `ProductGridRenderer.ProductHasProperty` ile) doğrulanır,
+uymayan bir değer anlaşılır bir hata mesajıyla reddedilir.
 
 ## Örnek Kullanım Senaryosu
 

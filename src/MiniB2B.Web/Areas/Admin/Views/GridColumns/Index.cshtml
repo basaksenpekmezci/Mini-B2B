@@ -1,0 +1,52 @@
+@model IEnumerable<ProductGridColumn>
+@{ ViewData["Title"] = "Grid Kolonları"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Grid Kolonları</h2>
+        <p class="text-muted mb-0">Mağaza ürün grid'inde hangi kolonların, hangi sırayla ve hangi cihazlarda görüneceğini buradan yönetin.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Yeni Kolon</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th class="text-end">Sıra</th>
+            <th>Kolon Anahtarı</th>
+            <th>Görünen Ad</th>
+            <th>Render Tipi</th>
+            <th>Hizalama</th>
+            <th>Genişlik</th>
+            <th class="text-center">Görünür</th>
+            <th class="text-center">Masaüstü</th>
+            <th class="text-center">Tablet</th>
+            <th class="text-center">Telefon</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr class="@(c.IsVisible ? "" : "text-muted")">
+                <td class="text-end">@c.OrderIndex</td>
+                <td><code>@c.ColumnKey</code></td>
+                <td>@c.DisplayName</td>
+                <td>@c.RenderType</td>
+                <td>@c.Alignment</td>
+                <td>@c.Width</td>
+                <td class="text-center">@(c.IsVisible ? "✔" : "—")</td>
+                <td class="text-center">@(c.ShowOnDesktop ? "✔" : "—")</td>
+                <td class="text-center">@(c.ShowOnTablet ? "✔" : "—")</td>
+                <td class="text-center">@(c.ShowOnMobile ? "✔" : "—")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="11" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+        }
+    </tbody>
+</table>
