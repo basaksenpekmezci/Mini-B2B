@@ -153,6 +153,14 @@ public class ProductRepository : IProductRepository
         await connection.ExecuteAsync(sql, product);
     }
 
+    public async Task SetActiveAsync(int id, bool isActive)
+    {
+        const string sql = "UPDATE dbo.Products SET IsActive = @IsActive WHERE Id = @Id;";
+
+        using var connection = _context.CreateConnection();
+        await connection.ExecuteAsync(sql, new { Id = id, IsActive = isActive });
+    }
+
     public async Task DecrementStokAsync(IDbConnection connection, IDbTransaction transaction, int productId, int adet)
     {
         const string sql = @"

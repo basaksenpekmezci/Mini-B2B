@@ -20,6 +20,8 @@ public class ProductService : IProductService
 
     public Task<Product?> GetByIdAsync(int id) => _productRepository.GetByIdAsync(id);
 
+    public Task SetActiveAsync(int id, bool isActive) => _productRepository.SetActiveAsync(id, isActive);
+
     public async Task<ProductSaveResult> CreateAsync(Product product)
     {
         var validation = Validate(product);

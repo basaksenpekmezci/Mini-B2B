@@ -20,6 +20,9 @@ public interface IProductRepository
     Task<int> CreateAsync(Product product);
     Task UpdateAsync(Product product);
 
+    /// <summary>Admin panelinden ürünü pasife alma/tekrar aktif etme (soft delete yerine).</summary>
+    Task SetActiveAsync(int id, bool isActive);
+
     /// <summary>
     /// Sipariş oluşturma transaction'ı içinde stoğu düşmek için kullanılır (bkz. OrderService).
     /// Stok kontrolü artık ayrı bir sorguyla değil, ICartRepository.GetItemsForOrderAsync'in

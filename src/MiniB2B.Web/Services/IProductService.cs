@@ -17,4 +17,5 @@ public interface IProductService
     Task<Product?> GetByIdAsync(int id);
     Task<ProductSaveResult> CreateAsync(Product product);
     Task<ProductSaveResult> UpdateAsync(Product product);
+    Task SetActiveAsync(int id, bool isActive);
 }

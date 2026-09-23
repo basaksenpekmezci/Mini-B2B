@@ -21,17 +21,43 @@ public class ProductsController : Controller
         _categoryRepository = categoryRepository;
     }
 
-    // GET /Admin/Products?search=...&categoryId=...&marka=...&page=...
-    public async Task<IActionResult> Index(string? search, int? categoryId, string? marka, int page = 1)
+    // GET /Admin/Products?search=...&categoryId=...&marka=...&durum=aktif|pasif|tumu&page=...
+    // durum varsayılan "aktif": admin panelinde de öntanımlı olarak sadece aktif ürünler gösterilir,
+    // ama "Pasif" veya "Tümü" seçilerek pasife alınmış ürünler de görüntülenip tekrar aktif edilebilir.
+    public async Task<IActionResult> Index(string? search, int? categoryId, string? marka, string durum = "aktif", int page = 1)
     {
-        var result = await _productService.SearchPagedAsync(search, categoryId, marka, isActiveFilter: true, page, PageSize);
+        bool? isActiveFilter = durum switch
+        {
+            "pasif" => false,
+            "tumu" => null,
+            _ => true
+        };
+
+        var result = await _productService.SearchPagedAsync(search, categoryId, marka, isActiveFilter, page, PageSize);
 
         ViewData["Search"] = search;
         ViewData["CategoryId"] = categoryId;
         ViewData["Marka"] = marka;
+        ViewData["Durum"] = durum;
         ViewData["Categories"] = await _categoryRepository.GetAllAsync();
         ViewData["Brands"] = await _productService.GetDistinctBrandsAsync();
         return View(result);
+    }
+
+    // POST /Admin/Products/SetActive — ürünü pasife alır / tekrar aktif eder (soft delete yerine).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetActive(int id, bool isActive, string? returnUrl)
+    {
+        await _productService.SetActiveAsync(id, isActive);
+        TempData["Success"] = isActive ? "Ürün tekrar aktif edildi." : "Ürün pasife alındı.";
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Create()

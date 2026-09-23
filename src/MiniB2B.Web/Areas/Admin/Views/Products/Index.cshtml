@@ -6,6 +6,7 @@
     var brands = (IEnumerable<string>)ViewData["Brands"]!;
     var currentCategoryId = ViewData["CategoryId"] as int?;
     var currentMarka = ViewData["Marka"] as string;
+    var currentDurum = ViewData["Durum"] as string ?? "aktif";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -36,6 +37,13 @@
         </select>
     </div>
     <div class="col-auto">
+        <select name="durum" class="form-select">
+            <option value="aktif" selected="@(currentDurum == "aktif")">Aktif</option>
+            <option value="pasif" selected="@(currentDurum == "pasif")">Pasif</option>
+            <option value="tumu" selected="@(currentDurum == "tumu")">Tümü</option>
+        </select>
+    </div>
+    <div class="col-auto">
         <button type="submit" class="btn btn-outline-secondary">Ara / Filtrele</button>
     </div>
     @if (!string.IsNullOrEmpty(ViewData["Search"] as string) || currentCategoryId is not null || !string.IsNullOrEmpty(currentMarka))
@@ -55,27 +63,40 @@
             <th>Kategori</th>
             <th class="text-end">Stok</th>
             <th class="text-end">Fiyat</th>
+            <th>Durum</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var p in Model.Items)
         {
-            <tr>
+            <tr class="@(p.IsActive ? "" : "text-muted")">
                 <td>@p.UrunKodu</td>
                 <td>@p.UrunAdi</td>
                 <td>@p.Marka</td>
                 <td>@p.CategoryAdi</td>
                 <td class="text-end">@p.StokMiktari</td>
                 <td class="text-end">@p.Fiyat.ToString("N2") TL</td>
+                <td>
+                    <span class="badge @(p.IsActive ? "bg-success" : "bg-secondary")">@(p.IsActive ? "Aktif" : "Pasif")</span>
+                </td>
                 <td class="text-end">
                     <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                    <form asp-action="SetActive" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@p.Id" />
+                        <input type="hidden" name="isActive" value="@(!p.IsActive)" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                        <button type="submit" class="btn btn-sm @(p.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                            @(p.IsActive ? "Pasife Al" : "Aktif Et")
+                        </button>
+                    </form>
                 </td>
             </tr>
         }
         @if (!Model.Items.Any())
         {
-            <tr><td colspan="7" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+            <tr><td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
         }
     </tbody>
 </table>
@@ -90,7 +111,7 @@
                 <li class="page-item @(i == Model.Page ? "active" : "")">
                     <a class="page-link" asp-action="Index"
                        asp-route-search="@ViewData["Search"]" asp-route-categoryId="@currentCategoryId"
-                       asp-route-marka="@currentMarka" asp-route-page="@i">@i</a>
+                       asp-route-marka="@currentMarka" asp-route-durum="@currentDurum" asp-route-page="@i">@i</a>
                 </li>
             }
         </ul>
