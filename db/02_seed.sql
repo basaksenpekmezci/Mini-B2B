@@ -57,3 +57,13 @@ BEGIN
     (N'AdetGiris',   N'Adet',          7, N'QtyInput',   1, 1, 1, 1, N'160px', N'center');
 END
 GO
+
+-- Ana sayfa slider'ı için örnek banner'lar
+IF NOT EXISTS (SELECT 1 FROM dbo.Banners)
+BEGIN
+    INSERT INTO dbo.Banners (Baslik, ResimUrl, Link, Sira, IsActive) VALUES
+    (N'Mini B2B Kataloğuna Hoş Geldiniz', NULL, NULL, 1, 1),
+    (N'Toplu Alımlarda Avantajlı Fiyatlar', NULL, NULL, 2, 1),
+    (N'Siparişlerinizi Anlık Takip Edin', NULL, NULL, 3, 1);
+END
+GO

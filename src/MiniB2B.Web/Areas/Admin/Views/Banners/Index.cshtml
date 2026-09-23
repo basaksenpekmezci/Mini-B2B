@@ -1,0 +1,47 @@
+@model IEnumerable<Banner>
+@{ ViewData["Title"] = "Banner'lar"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Banner'lar</h2>
+        <p class="text-muted mb-0">Ana sayfadaki slider'da gösterilecek kampanya/duyuru içerikleri.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Yeni Banner</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th class="text-end">Sıra</th>
+            <th>Başlık</th>
+            <th>Görsel</th>
+            <th>Link</th>
+            <th class="text-center">Aktif</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr class="@(b.IsActive ? "" : "text-muted")">
+                <td class="text-end">@b.Sira</td>
+                <td>@b.Baslik</td>
+                <td>@b.ResimUrl</td>
+                <td>@b.Link</td>
+                <td class="text-center">@(b.IsActive ? "✔" : "—")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@b.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                    <form asp-action="Delete" asp-route-id="@b.Id" method="post" class="d-inline"
+                          onsubmit="return confirm('&quot;@b.Baslik&quot; bannerını silmek istediğinize emin misiniz?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="6" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+        }
+    </tbody>
+</table>

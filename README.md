@@ -30,21 +30,25 @@ sqlcmd -S (localdb)\MSSQLLocalDB -i db/02_seed.sql
 (SSMS kullanıyorsanız dosyaları açıp sırayla F5 ile çalıştırmanız yeterli.)
 
 Bu iki script `MiniB2B` veritabanını oluşturur, tüm tabloları (Users, Categories, Products,
-ProductGridColumns, Cart, CartItems, Orders, OrderItems) ve `SiparisNoSequence` nesnesini kurar,
-örnek ürün/kategori/grid-kolon verisiyle doldurur. **Bu iki script'in taze bir kurulumda tek başına
-yeterlidir** — üçüncü bir script'e gerek yoktur.
+ProductGridColumns, Banners, Cart, CartItems, Orders, OrderItems) ve `SiparisNoSequence` nesnesini
+kurar, örnek ürün/kategori/grid-kolon/banner verisiyle doldurur. **Bu iki script'in taze bir kurulumda
+tek başına yeterlidir** — 03/04 numaralı script'lere gerek yoktur, onlar sadece aşağıdaki gibi mevcut
+bir veritabanını güncellemek içindir.
 
-**Zaten bu projeyle daha önce (03 numaralı script eklenmeden önce) kurulmuş bir veritabanınız varsa**,
-sadece eksik parçayı eklemek için ek olarak şunu çalıştırın:
+**Zaten bu projeyle daha önce (03/04 numaralı script'ler eklenmeden önce) kurulmuş bir veritabanınız
+varsa**, eksik parçaları eklemek için ek olarak şunları çalıştırın (ikisi de idempotent'tir, veriyi silmez):
 
 ```
 sqlcmd -S (localdb)\MSSQLLocalDB -i db/03_add_siparisno_sequence.sql
+sqlcmd -S (localdb)\MSSQLLocalDB -i db/04_add_banners.sql
 ```
 
-Script gerçek anlamda idempotent'tir: `SiparisNoSequence` zaten varsa **hiçbir şey yapmaz** (DROP edip
-sıfırlamaz — aksi halde sipariş oluşmuş bir veritabanında tekrar çalıştırıldığında sequence 1'den
-başlar ve `SiparisNo` UNIQUE kısıtını ihlal ederdi). İlk çalıştırmada, Orders tablosunda zaten
-`SP` + 6 haneli formatta kayıt varsa sequence en büyük mevcut numaradan sonra başlar.
+`03_add_siparisno_sequence.sql` gerçek anlamda idempotent'tir: `SiparisNoSequence` zaten varsa
+**hiçbir şey yapmaz** (DROP edip sıfırlamaz — aksi halde sipariş oluşmuş bir veritabanında tekrar
+çalıştırıldığında sequence 1'den başlar ve `SiparisNo` UNIQUE kısıtını ihlal ederdi). İlk çalıştırmada,
+Orders tablosunda zaten `SP` + 6 haneli formatta kayıt varsa sequence en büyük mevcut numaradan sonra
+başlar. `04_add_banners.sql` da benzer şekilde: `Banners` tablosu zaten varsa dokunmaz, örnek banner
+verisi de sadece tablo boşsa eklenir.
 
 ### 3. Bağlantı Ayarı
 `src/MiniB2B.Web/appsettings.json` içindeki `ConnectionStrings:DefaultConnection`, Windows Authentication kullanan LocalDB için güvenli (şifre içermeyen) bir varsayılan değer içerir:
@@ -94,10 +98,11 @@ Tarayıcıda `http://localhost:5080` (veya konsolda gösterilen port) adresine g
 MiniB2B.sln
 db/
   01_schema.sql                     # tablolar, ilişkiler, kısıtlar, SiparisNoSequence
-  02_seed.sql                       # kategori/ürün/grid-kolon örnek verisi
+  02_seed.sql                       # kategori/ürün/grid-kolon/banner örnek verisi
   03_add_siparisno_sequence.sql     # ALTER: mevcut bir veritabanına SiparisNoSequence eklemek için
+  04_add_banners.sql                # ALTER: mevcut bir veritabanına Banners tablosunu eklemek için
 src/MiniB2B.Web/
-  Domain/               # entity sınıfları (Product, Category, Cart, Order, ProductGridColumn, User)
+  Domain/               # entity sınıfları (Product, Category, Cart, Order, ProductGridColumn, Banner, User)
   Data/
     DapperContext.cs
     DbInitializer.cs     # admin kullanıcı seed
@@ -127,9 +132,12 @@ src/MiniB2B.Web/
 - **Grid Kolonları:** mağaza ürün grid'inin kolonlarını (görünen ad, sıra, render tipi, hizalama,
   genişlik, masaüstü/tablet/telefon görünürlüğü) SQL yazmadan ekleyip düzenleyebileceğiniz bir ekran
   (`/Admin/GridColumns`) — bkz. [Dinamik grid'in çalışma mantığı](#mimari-ve-teknik-tercihler).
+- **Banner'lar:** ana sayfadaki slider'ın içeriğini (başlık, görsel URL, link, sıra, aktiflik) SQL
+  yazmadan yönetebileceğiniz bir ekran (`/Admin/Banners`, tam CRUD).
 
 ### Kullanıcı Arayüzü
-- Ana sayfada kampanya/slider alanı ve ürün grid'i.
+- Ana sayfada kampanya/slider alanı (içeriği admin panelindeki **Banner'lar** ekranından yönetilir —
+  başlık, görsel, link, sıra, aktiflik) ve ürün grid'i.
 - Kayıt ol / giriş yap / çıkış yap (cookie auth); giriş gerektiren aksiyonlarda girişsiz kullanıcı
   login sayfasına yönlendirilir.
 - **Ürün arama ve dinamik grid:** kolonlar (hangi alan, sırası, render tipi, hizalama, genişlik, hangi

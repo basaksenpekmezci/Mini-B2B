@@ -13,12 +13,18 @@ public class HomeController : Controller
     private readonly IProductService _productService;
     private readonly IProductGridColumnRepository _gridColumnRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IBannerService _bannerService;
 
-    public HomeController(IProductService productService, IProductGridColumnRepository gridColumnRepository, ICategoryRepository categoryRepository)
+    public HomeController(
+        IProductService productService,
+        IProductGridColumnRepository gridColumnRepository,
+        ICategoryRepository categoryRepository,
+        IBannerService bannerService)
     {
         _productService = productService;
         _gridColumnRepository = gridColumnRepository;
         _categoryRepository = categoryRepository;
+        _bannerService = bannerService;
     }
 
     // GET /  veya  /Home/Index?search=...&categoryId=...&marka=...&page=...
@@ -39,6 +45,7 @@ public class HomeController : Controller
         ViewData["Categories"] = await _categoryRepository.GetAllAsync();
         ViewData["Brands"] = await _productService.GetDistinctBrandsAsync();
         ViewData["GridColumns"] = columns;
+        ViewData["Banners"] = await _bannerService.GetActiveOrderedAsync();
         return View(result);
     }
 

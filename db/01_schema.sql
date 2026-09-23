@@ -115,6 +115,24 @@ CREATE TABLE dbo.ProductGridColumns
 GO
 
 -- =========================================================
+-- Banners  (ana sayfa slider'ı için admin panelinden yönetilen içerik)
+-- =========================================================
+IF OBJECT_ID('dbo.Banners', 'U') IS NOT NULL DROP TABLE dbo.Banners;
+GO
+CREATE TABLE dbo.Banners
+(
+    Id          INT             IDENTITY(1,1)   NOT NULL,
+    Baslik      NVARCHAR(200)   NOT NULL,
+    ResimUrl    NVARCHAR(500)   NULL,
+    Link        NVARCHAR(500)   NULL,
+    Sira        INT             NOT NULL CONSTRAINT DF_Banners_Sira DEFAULT (0),
+    IsActive    BIT             NOT NULL CONSTRAINT DF_Banners_IsActive DEFAULT (1),
+
+    CONSTRAINT PK_Banners PRIMARY KEY CLUSTERED (Id)
+);
+GO
+
+-- =========================================================
 -- Cart / CartItems
 -- =========================================================
 IF OBJECT_ID('dbo.CartItems', 'U') IS NOT NULL DROP TABLE dbo.CartItems;

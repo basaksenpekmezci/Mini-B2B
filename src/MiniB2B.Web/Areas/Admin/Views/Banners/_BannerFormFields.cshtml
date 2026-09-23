@@ -1,0 +1,26 @@
+@model Banner
+
+<div class="mb-3">
+    <label asp-for="Baslik" class="form-label">Başlık</label>
+    <input asp-for="Baslik" class="form-control" required />
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="ResimUrl" class="form-label">Görsel URL</label>
+        <input asp-for="ResimUrl" class="form-control" placeholder="/images/banners/... veya harici URL (boş bırakılırsa renkli bir alan gösterilir)" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Link" class="form-label">Link (opsiyonel)</label>
+        <input asp-for="Link" class="form-control" placeholder="Tıklanınca gidilecek adres" />
+    </div>
+    <div class="col-md-2 mb-3">
+        <label asp-for="Sira" class="form-label">Sıra</label>
+        <input asp-for="Sira" type="number" class="form-control" required />
+    </div>
+</div>
+
+<div class="mb-3 form-check">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label">Aktif (ana sayfada gösterilsin)</label>
+</div>

@@ -16,6 +16,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductGridColumnRepository, ProductGridColumnRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 
 // Servisler
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductGridColumnService, ProductGridColumnService>();
+builder.Services.AddScoped<IBannerService, BannerService>();
 
 // Cookie tabanlı authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

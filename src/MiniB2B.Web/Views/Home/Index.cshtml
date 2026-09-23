@@ -8,34 +8,45 @@
     var brands = (IEnumerable<string>)ViewData["Brands"]!;
     var currentCategoryId = ViewData["CategoryId"] as int?;
     var currentMarka = ViewData["Marka"] as string;
+    var banners = ((IEnumerable<Banner>)ViewData["Banners"]!).ToList();
+    // Görseli olmayan banner'lar için sırayla dönen renk paleti (admin panelinden görsel eklenmese de slider anlamlı görünsün diye).
+    string[] bannerColors = { "bg-primary", "bg-success", "bg-dark", "bg-secondary", "bg-info" };
 }
 
-<div id="homeSlider" class="carousel slide mb-4" data-bs-ride="carousel">
-    <div class="carousel-inner rounded">
-        <div class="carousel-item active">
-            <div class="bg-primary text-white text-center py-5">
-                <h3>Mini B2B Kataloğuna Hoş Geldiniz</h3>
-                <p>Ürünleri keşfedin, hızlıca sipariş oluşturun.</p>
-            </div>
+@if (banners.Any())
+{
+    <div id="homeSlider" class="carousel slide mb-4" data-bs-ride="carousel">
+        <div class="carousel-inner rounded">
+            @for (var i = 0; i < banners.Count; i++)
+            {
+                var banner = banners[i];
+                var slideContent = string.IsNullOrEmpty(banner.ResimUrl)
+                    ? $"<div class=\"{bannerColors[i % bannerColors.Length]} text-white text-center py-5\"><h3>{System.Net.WebUtility.HtmlEncode(banner.Baslik)}</h3></div>"
+                    : $"<img src=\"{banner.ResimUrl}\" alt=\"{System.Net.WebUtility.HtmlEncode(banner.Baslik)}\" class=\"d-block w-100\" style=\"max-height:320px;object-fit:cover;\" />";
+
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    @if (!string.IsNullOrEmpty(banner.Link))
+                    {
+                        <a href="@banner.Link">@Html.Raw(slideContent)</a>
+                    }
+                    else
+                    {
+                        @Html.Raw(slideContent)
+                    }
+                </div>
+            }
         </div>
-        <div class="carousel-item">
-            <div class="bg-success text-white text-center py-5">
-                <h3>Toplu Alımlarda Avantajlı Fiyatlar</h3>
-            </div>
-        </div>
-        <div class="carousel-item">
-            <div class="bg-dark text-white text-center py-5">
-                <h3>Siparişlerinizi Anlık Takip Edin</h3>
-            </div>
-        </div>
+        @if (banners.Count > 1)
+        {
+            <button class="carousel-control-prev" type="button" data-bs-target="#homeSlider" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#homeSlider" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        }
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#homeSlider" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#homeSlider" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-    </button>
-</div>
+}
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Ürünler</h2>
