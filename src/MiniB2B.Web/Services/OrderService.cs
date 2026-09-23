@@ -110,14 +110,48 @@ public class OrderService : IOrderService
 
     public Task<Order?> GetOrderDetailAsync(int orderId) => _orderRepository.GetOrderDetailAsync(orderId);
 
-    public Task<bool> UpdateStatusAsync(int orderId, string durum)
+    /// <summary>
+    /// Sadece "Beklemede" durumundaki bir siparişin durumu değiştirilebilir (zaten sonuçlanmış bir
+    /// siparişte anlaşılır bir hata döner). "Reddedildi" durumuna geçişte, sipariş kalemlerindeki
+    /// adetler aynı transaction içinde tek bir set-based UPDATE ile ürünlerin stoğuna geri eklenir.
+    /// </summary>
+    public async Task<OrderStatusUpdateResult> UpdateStatusAsync(int orderId, string durum)
     {
         if (!AllowedStatusChanges.Contains(durum))
         {
             throw new ArgumentException($"Geçersiz sipariş durumu: {durum}", nameof(durum));
         }
 
-        return _orderRepository.UpdateStatusAsync(orderId, durum);
+        using var connection = _context.CreateConnection();
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            var updated = await _orderRepository.TryUpdateStatusAsync(connection, transaction, orderId, durum);
+            if (!updated)
+            {
+                transaction.Rollback();
+                return new OrderStatusUpdateResult
+                {
+                    Success = false,
+                    ErrorMessage = "Bu sipariş zaten sonuçlanmış (Beklemede durumunda değil); durumu tekrar değiştirilemez."
+                };
+            }
+
+            if (durum == "Reddedildi")
+            {
+                await _orderRepository.RestoreStockForOrderAsync(connection, transaction, orderId);
+            }
+
+            transaction.Commit();
+            return new OrderStatusUpdateResult { Success = true };
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     private static string GenerateSiparisNo() => $"SP{DateTime.UtcNow:yyyyMMddHHmmssfff}";

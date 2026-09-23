@@ -93,12 +93,26 @@ public class OrderRepository : IOrderRepository
         return await connection.QueryAsync<Order>(sql);
     }
 
-    public async Task<bool> UpdateStatusAsync(int orderId, string durum)
+    public async Task<bool> TryUpdateStatusAsync(IDbConnection connection, IDbTransaction transaction, int orderId, string durum)
     {
-        const string sql = "UPDATE dbo.Orders SET Durum = @Durum WHERE Id = @OrderId;";
+        const string sql = @"
+            UPDATE dbo.Orders
+            SET Durum = @Durum
+            WHERE Id = @OrderId AND Durum = 'Beklemede';";
 
-        using var connection = _context.CreateConnection();
-        var affected = await connection.ExecuteAsync(sql, new { OrderId = orderId, Durum = durum });
+        var affected = await connection.ExecuteAsync(new CommandDefinition(sql, new { OrderId = orderId, Durum = durum }, transaction));
         return affected > 0;
+    }
+
+    public async Task RestoreStockForOrderAsync(IDbConnection connection, IDbTransaction transaction, int orderId)
+    {
+        const string sql = @"
+            UPDATE p
+            SET p.StokMiktari = p.StokMiktari + oi.Adet
+            FROM dbo.Products p
+            JOIN dbo.OrderItems oi ON oi.ProductId = p.Id
+            WHERE oi.OrderId = @OrderId;";
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, new { OrderId = orderId }, transaction));
     }
 }

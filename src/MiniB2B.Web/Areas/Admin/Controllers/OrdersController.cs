@@ -37,8 +37,10 @@ public class OrdersController : Controller
     {
         try
         {
-            await _orderService.UpdateStatusAsync(id, durum);
-            TempData["Success"] = "Sipariş durumu güncellendi.";
+            var result = await _orderService.UpdateStatusAsync(id, durum);
+            TempData[result.Success ? "Success" : "Error"] = result.Success
+                ? "Sipariş durumu güncellendi."
+                : result.ErrorMessage;
         }
         catch (ArgumentException ex)
         {

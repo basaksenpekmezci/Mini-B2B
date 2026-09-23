@@ -9,6 +9,12 @@ public class OrderCreateResult
     public Order? Order { get; set; }
 }
 
+public class OrderStatusUpdateResult
+{
+    public bool Success { get; set; }
+    public string? ErrorMessage { get; set; }
+}
+
 public interface IOrderService
 {
     Task<OrderCreateResult> CreateOrderFromCartAsync(int userId);
@@ -18,5 +24,5 @@ public interface IOrderService
 
     Task<IEnumerable<Order>> GetAllOrdersAsync();
     Task<Order?> GetOrderDetailAsync(int orderId);
-    Task<bool> UpdateStatusAsync(int orderId, string durum);
+    Task<OrderStatusUpdateResult> UpdateStatusAsync(int orderId, string durum);
 }
