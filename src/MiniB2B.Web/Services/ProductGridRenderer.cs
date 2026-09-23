@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using MiniB2B.Web.Domain;
 
@@ -12,15 +13,16 @@ namespace MiniB2B.Web.Services;
 /// </summary>
 public static class ProductGridRenderer
 {
-    private static readonly Dictionary<string, PropertyInfo?> PropertyCache = new();
+    // ASP.NET Core istekleri paralel/eşzamanlı işler; bu cache birden çok request tarafından aynı
+    // anda okunup yazılabilir. Düz Dictionary eşzamanlı yazımlarda veri bozulmasına (hatta iç yapısının
+    // bozulup exception atmasına) yol açabilir, bu yüzden ConcurrentDictionary + GetOrAdd kullanılıyor.
+    private static readonly ConcurrentDictionary<string, PropertyInfo?> PropertyCache = new();
 
     public static object? GetValue(Product product, string columnKey)
     {
-        if (!PropertyCache.TryGetValue(columnKey, out var prop))
-        {
-            prop = typeof(Product).GetProperty(columnKey, BindingFlags.Public | BindingFlags.Instance);
-            PropertyCache[columnKey] = prop;
-        }
+        var prop = PropertyCache.GetOrAdd(
+            columnKey,
+            static key => typeof(Product).GetProperty(key, BindingFlags.Public | BindingFlags.Instance));
 
         return prop?.GetValue(product);
     }
