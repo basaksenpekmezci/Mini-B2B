@@ -153,6 +153,18 @@ GO
 IF OBJECT_ID('dbo.OrderItems', 'U') IS NOT NULL DROP TABLE dbo.OrderItems;
 IF OBJECT_ID('dbo.Orders', 'U') IS NOT NULL DROP TABLE dbo.Orders;
 GO
+
+-- SiparisNo üretimi için: zaman damgası yerine, eşzamanlı sipariş oluşturmalarda bile çakışmayan,
+-- SQL Server tarafından atomik şekilde artırılan bir SEQUENCE kullanılıyor (bkz. OrderService).
+IF OBJECT_ID('dbo.SiparisNoSequence', 'SO') IS NOT NULL DROP SEQUENCE dbo.SiparisNoSequence;
+GO
+CREATE SEQUENCE dbo.SiparisNoSequence
+    AS INT
+    START WITH 1
+    INCREMENT BY 1
+    NO CYCLE;
+GO
+
 CREATE TABLE dbo.Orders
 (
     Id              INT             IDENTITY(1,1)   NOT NULL,

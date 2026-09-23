@@ -11,6 +11,14 @@ public interface IOrderRepository
     Task<int> CreateOrderAsync(IDbConnection connection, IDbTransaction transaction, Order order);
     Task AddOrderItemAsync(IDbConnection connection, IDbTransaction transaction, int orderId, OrderItem item);
 
+    /// <summary>
+    /// dbo.SiparisNoSequence'tan bir sonraki değeri alır (NEXT VALUE FOR). SQL Server sequence'ları
+    /// atomik olduğu için eşzamanlı sipariş oluşturmalarda bile çakışma olmaz; transaction rollback
+    /// olsa da değer "harcanmış" sayılır (bilinçli tercih — sıra numarasında boşluk kalması, sipariş
+    /// numarasının aynı anda iki siparişe verilmesinden daha az sorunlu).
+    /// </summary>
+    Task<int> GetNextSiparisNoAsync(IDbConnection connection, IDbTransaction transaction);
+
     Task<IEnumerable<Order>> GetOrdersForUserAsync(int userId);
     Task<Order?> GetOrderDetailAsync(int orderId);
     Task<IEnumerable<Order>> GetAllOrdersAsync();

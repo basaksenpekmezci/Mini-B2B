@@ -74,9 +74,10 @@ public class OrderService : IOrderService
                 }
             }
 
+            var nextNo = await _orderRepository.GetNextSiparisNoAsync(connection, transaction);
             var order = new Order
             {
-                SiparisNo = GenerateSiparisNo(),
+                SiparisNo = $"SP{nextNo:D6}",
                 UserId = userId,
                 Durum = "Beklemede",
                 ToplamTutar = items.Sum(i => i.ToplamFiyat)
@@ -167,6 +168,4 @@ public class OrderService : IOrderService
             throw;
         }
     }
-
-    private static string GenerateSiparisNo() => $"SP{DateTime.UtcNow:yyyyMMddHHmmssfff}";
 }

@@ -23,6 +23,12 @@ public class OrderRepository : IOrderRepository
         return await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, order, transaction));
     }
 
+    public async Task<int> GetNextSiparisNoAsync(IDbConnection connection, IDbTransaction transaction)
+    {
+        const string sql = "SELECT NEXT VALUE FOR dbo.SiparisNoSequence;";
+        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, transaction: transaction));
+    }
+
     public async Task AddOrderItemAsync(IDbConnection connection, IDbTransaction transaction, int orderId, OrderItem item)
     {
         const string sql = @"
